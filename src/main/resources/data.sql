@@ -1,0 +1,14 @@
+-- INSERT INTO website (website_id, name, url, description, current_status)VALUES
+-- (null, "Fan Fiction", "https://www.fanfiction.net/", "Animes and mangas where you unleash your imagination", "Unserviceable");
+--
+-- INSERT INTO website (website_id, name, url, description, current_status)VALUES
+-- (null, "Movie DB", "https://www.themoviedb.org/?language=en-US", "A movie database that provides API for developers", "Unserviceable");
+--
+-- INSERT INTO website (website_id, name, url, description, current_status)VALUES
+-- (null, "Australlia Bet", "https://www.betexplorer.com/soccer/australia/", "A betting site in Australlia similar to the BetNaija", "Unserviceable");
+--
+-- INSERT INTO website (website_id, name, url, description, current_status)VALUES
+-- (null, "Carmax", "https://www.carmax.com/", "a car listing and sales website according to your budget", "Unserviceable");
+--
+-- INSERT INTO website (website_id, name, url, description, current_status)VALUES
+-- (null, "Nairaland", "https://www.nairaland.com", "a Nigerian site to gossip and listen to gists", "Unserviceable");
