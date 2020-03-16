@@ -32,7 +32,7 @@ public class UserService {
             Optional<User> newUser= userRepository.findByEmail(user.getEmail());
             System.out.println(newUser.isPresent());
 
-            if(newUser.isPresent()){
+            if(!newUser.isPresent()){
                 user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
                 userRepository.save(user);
                 logger.info("A new user has been created", user);

@@ -36,11 +36,8 @@ public class WebsiteController {
 
     @GetMapping("/websites")
     public List<Website> getAllWebsites(){
-//        System.out.println(allServices.getAllWebsites());
         return allServices.getAllWebsites();
     }
-
-
 
 
 }

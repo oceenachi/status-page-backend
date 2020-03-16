@@ -4,10 +4,7 @@ import com.statuspage.status.Repository.IncidentRepository;
 import com.statuspage.status.Repository.RequestRepository;
 import com.statuspage.status.Repository.UserRepository;
 import com.statuspage.status.Repository.WebsiteRepository;
-import com.statuspage.status.dto.request.WebsitePayload;
 import com.statuspage.status.dto.response.CreateResponse;
-import com.statuspage.status.exception.RequestFailException;
-import com.statuspage.status.exception.UserAlreadyExistsException;
 import com.statuspage.status.exception.WebsiteAlreadyExistsException;
 import com.statuspage.status.model.*;
 import org.slf4j.Logger;
@@ -19,9 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+
 @Service
 public class AllServices {
 
@@ -61,15 +59,19 @@ public class AllServices {
         }
     }
 
+
     public List<Website> getAllWebsites() {
         return websiteRepository.findAll();
     }
 
-    @Scheduled(cron = "5 * * * * ?")
+
+
+    @Scheduled(cron = "*/5 * * * * ?")
     public void fireRequest() {
 
         Request newRequest = new Request();
         Incident newIncident = new Incident();
+        boolean sent = false;
 //        try {
             List<Website> websiteList = websiteRepository.findAll();
             for (Website website : websiteList) {
@@ -79,28 +81,35 @@ public class AllServices {
                 newRequest.setWebsite(website);
                 newRequest.setResponseCode(value);
                 newRequest.setRequestTime(Instant.now());
+                System.out.println(website.getName());
 
                 requestRepository.save(newRequest);
-//                System.out.println(value);
-//                System.out.println("this is me");
-//                boolean sent = false;
 
                 if (value < 300) {
+                    sent = false;
                     website.setCurrentStatus(StatusName.Operational);
-                    System.out.println(websiteRepository.updateWebsiteStatus(StatusName.Operational, website.getWebsiteId()));
-                    System.out.println("it is " + website.getCurrentStatus() + " -- " + website.getWebsiteId().toString());
 
-                    if (newIncident.getIsResolved() != null) {
+                    if (!newIncident.getIsResolved()) {
                         newIncident.setIsResolved(true);
                     }
 
-                    if (newIncident.getIncidentStatus() != null) {
+                    if (newIncident.getIncidentStatus() != IncidentStatus.Resolved) {
                         newIncident.setIncidentStatus(IncidentStatus.Resolved);
                     }
 
                 } else {
+                    System.out.println("currently down, currently down");
+                    website.setCurrentStatus(StatusName.Unserviceable);
 
-//                    if(newIncident.getIsResolved() && (sent = false)){
+                    newIncident.setIsResolved(false);
+                    newIncident.setIncidentTime(Instant.now());
+                    String newMessage = website.getName() + " is currently down for some users" + '\n' + "Our engineering team is currently working hard to resolve this issue";
+                    newIncident.setMessage(newMessage);
+                    newIncident.setIncidentStatus(IncidentStatus.Investigating);
+                    newIncident.setRequest(newRequest);
+                    incidentRepository.save(newIncident);
+
+//                    if(newIncident.getIsResolved() && (sent)){
 //                        System.out.println("problem here");
 //                        String body = "As at " + newIncident.getIncidentTime() + ", "+ website.getName() + " returned a status code of "
 //                                + responseEntity.getStatusCode() + ". " + "\n" + "Here is a redirection link to server http://localhost:5000";
@@ -114,19 +123,10 @@ public class AllServices {
 //                            count++;
 //                        }
 //                        emailService.sendSimpleMessage(emails, website.getName() + " crash", body);
+//                        sent = true;
 //
 //                    }
-//                    sent = true;
-                    System.out.println("currently down, currently down");
-                    website.setCurrentStatus(StatusName.Unserviceable);
 
-                    newIncident.setIsResolved(false);
-                    newIncident.setIncidentTime(Instant.now());
-                    String newMessage = website.getName() + " is currently down for some users" + '\n' + "Our engineering team is currently working hard to resolve the issue";
-                    newIncident.setMessage(newMessage);
-                    newIncident.setIncidentStatus(IncidentStatus.Investigating);
-                    newIncident.setRequest(newRequest);
-                    incidentRepository.save(newIncident);
                 }
             }
 

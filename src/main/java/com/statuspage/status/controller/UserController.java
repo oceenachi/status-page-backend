@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @CrossOrigin
 @RestController
 @RequestMapping("/api/v1")
@@ -33,7 +35,7 @@ public class UserController {
 
 
     @PostMapping("/register")
-    private ResponseEntity<CreateResponse> register(@RequestBody SigninPayload signinPayload){
+    private ResponseEntity<CreateResponse> register(@Valid @RequestBody SigninPayload signinPayload){
         User user = modelMapper.map(signinPayload, User.class);
         CreateResponse createResponse = userService.register(user);
         return new ResponseEntity<>(createResponse, HttpStatus.CREATED);
