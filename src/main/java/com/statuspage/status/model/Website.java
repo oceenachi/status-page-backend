@@ -28,12 +28,13 @@ import java.util.UUID;
 public class Website {
 
     @Id
-    @GeneratedValue(generator = "UUID")
+    @GeneratedValue(generator = "uuid2")
     @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
+            name = "uuid2",
+            strategy = "uuid2"
     )
-    private UUID websiteId=UUID.randomUUID();
+    @Column(columnDefinition = "BINARY(16)")
+    private UUID websiteId;
 
     @NotBlank
     @Size(max = 40)

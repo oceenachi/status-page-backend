@@ -19,12 +19,13 @@ import java.util.UUID;
 public class Request {
 
     @Id
-    @GeneratedValue(generator = "UUID")
+    @GeneratedValue(generator = "uuid2")
     @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
+            name = "uuid2",
+            strategy = "uuid2"
     )
-    private UUID requestId=UUID.randomUUID();
+    @Column(columnDefinition = "BINARY(16)")
+    private UUID requestId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "websiteId", nullable = false)
