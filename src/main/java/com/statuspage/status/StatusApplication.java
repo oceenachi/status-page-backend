@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,8 +36,16 @@ public class StatusApplication {
 
     @Bean
     RestTemplate RestTemplate(RestTemplateBuilder builder){
-        return builder.build();
+        return builder
+                .setConnectTimeout(Duration.ofMillis(10000))
+//                .setReadTimeout(Duration.ofMillis(10000))
+                .build();
     }
+
+//    @Bean
+//    public WebClient.Builder getWebClientBuilder(){
+//        return WebClient.builder();
+//    }
 
 
     public static void main(String[] args) {

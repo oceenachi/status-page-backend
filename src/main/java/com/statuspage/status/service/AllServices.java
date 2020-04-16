@@ -15,7 +15,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +23,7 @@ import java.util.Optional;
 public class AllServices {
 
     private WebsiteRepository websiteRepository;
-    private RestTemplate restTemplate;
+//    private RestTemplate restTemplate;
     private RequestRepository requestRepository;
     private IncidentRepository incidentRepository;
     private EmailServiceImpl emailService;
@@ -32,9 +31,10 @@ public class AllServices {
 
     @Autowired
     private AllServices(WebsiteRepository websiteRepository, IncidentRepository incidentRepository,
-                        RestTemplate restTemplate, RequestRepository requestRepository, EmailServiceImpl emailService, UserRepository userRepository) {
+                        RequestRepository requestRepository,
+                        EmailServiceImpl emailService, UserRepository userRepository) {
         this.websiteRepository = websiteRepository;
-        this.restTemplate = restTemplate;
+//        this.restTemplate = restTemplate;
         this.requestRepository = requestRepository;
         this.incidentRepository = incidentRepository;
         this.emailService = emailService;
@@ -50,7 +50,7 @@ public class AllServices {
             Optional<Website> website = websiteRepository.findByUrl(newWebsite.getUrl());
             if (!website.isPresent()) {
                 websiteRepository.save(newWebsite);
-                return new CreateResponse(newWebsite.getName(), "Website created created successfully");
+                return new CreateResponse(newWebsite.getName(), "Website created successfully");
             } else {
                 throw new WebsiteAlreadyExistsException("The website ' " + newWebsite.getName() + "' already exists");
             }
@@ -63,77 +63,87 @@ public class AllServices {
     public List<Website> getAllWebsites() {
         return websiteRepository.findAll();
     }
-
-
-
-    @Scheduled(cron = "*/5 * * * * ?")
-    public void fireRequest() {
-
-        Request newRequest = new Request();
-        Incident newIncident = new Incident();
-        boolean sent = false;
-//        try {
-            List<Website> websiteList = websiteRepository.findAll();
-            for (Website website : websiteList) {
-                String url = website.getUrl();
-                ResponseEntity<?> responseEntity = restTemplate.getForEntity(url, String.class);
-                int value = responseEntity.getStatusCodeValue();
-                newRequest.setWebsite(website);
-                newRequest.setResponseCode(value);
-                newRequest.setRequestTime(Instant.now());
-                System.out.println(website.getName());
-
-                requestRepository.save(newRequest);
-
-                if (value < 300) {
-                    sent = false;
-                    website.setCurrentStatus(StatusName.Operational);
-
-                    if (!newIncident.getIsResolved()) {
-                        newIncident.setIsResolved(true);
-                    }
-
-                    if (newIncident.getIncidentStatus() != IncidentStatus.Resolved) {
-                        newIncident.setIncidentStatus(IncidentStatus.Resolved);
-                    }
-
-                } else {
-                    System.out.println("currently down, currently down");
-                    website.setCurrentStatus(StatusName.Unserviceable);
-
-                    newIncident.setIsResolved(false);
-                    newIncident.setIncidentTime(Instant.now());
-                    String newMessage = website.getName() + " is currently down for some users" + '\n' + "Our engineering team is currently working hard to resolve this issue";
-                    newIncident.setMessage(newMessage);
-                    newIncident.setIncidentStatus(IncidentStatus.Investigating);
-                    newIncident.setRequest(newRequest);
-                    incidentRepository.save(newIncident);
-
-//                    if(newIncident.getIsResolved() && (sent)){
-//                        System.out.println("problem here");
-//                        String body = "As at " + newIncident.getIncidentTime() + ", "+ website.getName() + " returned a status code of "
-//                                + responseEntity.getStatusCode() + ". " + "\n" + "Here is a redirection link to server http://localhost:5000";
-//                        List<String> allUserEmails = userRepository.findAllByEmail();
 //
 //
-//                        String[] emails = new String[allUserEmails.size()];
-//                        int count = 0;
-//                        for(String email: allUserEmails){
-//                            emails[count] = email;
-//                            count++;
-//                        }
-//                        emailService.sendSimpleMessage(emails, website.getName() + " crash", body);
-//                        sent = true;
+//    public void makeCalls(String url){
+//        Mono<String> response = webClient.build()
+//                .get()
+//                .uri(url)
+//                .retrieve()
+//                .bodyToMono(String.class);
 //
-//                    }
-
-                }
-            }
-
-//        } catch (Exception ex) {
-//            throw new RequestFailException("Requests could not be executed");
+//        Flux.merge(response).subscribe();
+//    }
 //
+//    @Scheduled(cron = "*/5 * * * * ?")
+//    public void fireRequest() {
+//        Request newRequest = new Request();
+//        Incident newIncident = new Incident();
+//        boolean sent = false;
+////        try {
+//            List<Website> websiteList = websiteRepository.findAll();
+//            for (Website website : websiteList) {
+//                String url = website.getUrl();
+//                makeCalls(url);
+//                ResponseEntity<?> responseEntity = restTemplate.getForEntity(url, String.class);
+////                int value = responseEntity.getStatusCodeValue();
+////                newRequest.setWebsite(website);
+////                newRequest.setResponseCode(value);
+////                newRequest.setRequestTime(Instant.now());
+////                System.out.println(website.getName());
+////
+////                requestRepository.save(newRequest);
+//
+////                if (value < 300) {
+////                    sent = false;
+////                    website.setCurrentStatus(StatusName.Operational);
+////
+////                    if (!newIncident.getIsResolved()) {
+////                        newIncident.setIsResolved(true);
+////                    }
+////
+////                    if (newIncident.getIncidentStatus() != IncidentStatus.Resolved) {
+////                        newIncident.setIncidentStatus(IncidentStatus.Resolved);
+////                    }
+////
+////                } else {
+////                    System.out.println("currently down, currently down");
+////                    website.setCurrentStatus(StatusName.Unserviceable);
+////
+////                    newIncident.setIsResolved(false);
+////                    newIncident.setIncidentTime(Instant.now());
+////                    String newMessage = website.getName() + " is currently down for some users" + '\n' + "Our engineering team is currently working hard to resolve this issue";
+////                    newIncident.setMessage(newMessage);
+////                    newIncident.setIncidentStatus(IncidentStatus.Investigating);
+////                    newIncident.setRequest(newRequest);
+////                    incidentRepository.save(newIncident);
+////
+//////                    if(newIncident.getIsResolved() && (sent)){
+//////                        System.out.println("problem here");
+//////                        String body = "As at " + newIncident.getIncidentTime() + ", "+ website.getName() + " returned a status code of "
+//////                                + responseEntity.getStatusCode() + ". " + "\n" + "Here is a redirection link to server http://localhost:5000";
+//////                        List<String> allUserEmails = userRepository.findAllByEmail();
+//////
+//////
+//////                        String[] emails = new String[allUserEmails.size()];
+//////                        int count = 0;
+//////                        for(String email: allUserEmails){
+//////                            emails[count] = email;
+//////                            count++;
+//////                        }
+//////                        emailService.sendSimpleMessage(emails, website.getName() + " crash", body);
+//////                        sent = true;
+//////
+//////                    }
+////
+////                }
+////            }
+////
+////        } catch (Exception ex) {
+//////            throw new RequestFailException("Requests could not be executed");
+////            System.out.println(Arrays.toString(ex.getStackTrace()));
+////
 //        }
-
-    }
+//
+//    }
 }

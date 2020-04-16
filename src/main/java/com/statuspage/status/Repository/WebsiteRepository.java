@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,5 +22,6 @@ public interface WebsiteRepository extends JpaRepository<Website, UUID> {
     @Modifying
     @Query("update Website website set website.currentStatus = ?1 where website.websiteId = ?2")
     int updateWebsiteStatus(StatusName newStatus, UUID websiteId);
+
 
 }

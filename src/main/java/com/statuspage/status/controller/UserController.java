@@ -5,7 +5,7 @@ import com.statuspage.status.Repository.UserRepository;
 import com.statuspage.status.dto.request.SigninPayload;
 import com.statuspage.status.dto.response.CreateResponse;
 import com.statuspage.status.model.User;
-import com.statuspage.status.service.AllServices;
+//import com.statuspage.status.service.AllServices;
 import com.statuspage.status.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +23,14 @@ public class UserController {
     private UserRepository userRepository;
     private ModelMapper modelMapper;
     private UserService userService;
-    private AllServices allServices;
+//    private AllServices allServices;
 
     @Autowired
-    private UserController(UserRepository userRepository, UserService userService, ModelMapper modelMapper, AllServices allServices){
+    private UserController(UserRepository userRepository, UserService userService, ModelMapper modelMapper){
         this.userRepository=userRepository;
         this.modelMapper=modelMapper;
         this.userService=userService;
-        this.allServices=allServices;
+//        this.allServices=allServices;
     }
 
 
