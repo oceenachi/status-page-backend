@@ -38,7 +38,7 @@ public class StatusApplication {
     RestTemplate RestTemplate(RestTemplateBuilder builder){
         return builder
                 .setConnectTimeout(Duration.ofMillis(10000))
-//                .setReadTimeout(Duration.ofMillis(10000))
+                .setReadTimeout(Duration.ofMillis(10000))
                 .build();
     }
 
