@@ -37,15 +37,10 @@ public class StatusApplication {
     @Bean
     RestTemplate RestTemplate(RestTemplateBuilder builder){
         return builder
-                .setConnectTimeout(Duration.ofMillis(10000))
-                .setReadTimeout(Duration.ofMillis(10000))
+//                .setConnectTimeout(Duration.ofMillis(5000))
+//                .setReadTimeout(Duration.ofMillis(10000))
                 .build();
     }
-
-//    @Bean
-//    public WebClient.Builder getWebClientBuilder(){
-//        return WebClient.builder();
-//    }
 
 
     public static void main(String[] args) {

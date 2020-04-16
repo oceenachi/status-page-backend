@@ -23,14 +23,12 @@ public class UserController {
     private UserRepository userRepository;
     private ModelMapper modelMapper;
     private UserService userService;
-//    private AllServices allServices;
 
     @Autowired
     private UserController(UserRepository userRepository, UserService userService, ModelMapper modelMapper){
         this.userRepository=userRepository;
         this.modelMapper=modelMapper;
         this.userService=userService;
-//        this.allServices=allServices;
     }
 
 

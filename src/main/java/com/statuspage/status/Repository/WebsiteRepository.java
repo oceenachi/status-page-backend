@@ -16,12 +16,13 @@ import java.util.UUID;
 @Repository
 public interface WebsiteRepository extends JpaRepository<Website, UUID> {
 
+    @Query("select website from Website website where website.url= :url")
     Optional<Website> findByUrl(String url);
 
     @Transactional
     @Modifying
-    @Query("update Website website set website.currentStatus = ?1 where website.websiteId = ?2")
-    int updateWebsiteStatus(StatusName newStatus, UUID websiteId);
+    @Query("update Website website set website.currentStatus = ?1 where website.url = ?2")
+    int updateWebsiteStatus(StatusName newStatus, String websiteUrl);
 
 
 }

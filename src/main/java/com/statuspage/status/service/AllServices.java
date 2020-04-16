@@ -63,60 +63,11 @@ public class AllServices {
     public List<Website> getAllWebsites() {
         return websiteRepository.findAll();
     }
-//
-//
-//    public void makeCalls(String url){
-//        Mono<String> response = webClient.build()
-//                .get()
-//                .uri(url)
-//                .retrieve()
-//                .bodyToMono(String.class);
-//
-//        Flux.merge(response).subscribe();
-//    }
-//
-//    @Scheduled(cron = "*/5 * * * * ?")
+
+
 //    public void fireRequest() {
-//        Request newRequest = new Request();
-//        Incident newIncident = new Incident();
-//        boolean sent = false;
-////        try {
-//            List<Website> websiteList = websiteRepository.findAll();
-//            for (Website website : websiteList) {
-//                String url = website.getUrl();
-//                makeCalls(url);
-//                ResponseEntity<?> responseEntity = restTemplate.getForEntity(url, String.class);
-////                int value = responseEntity.getStatusCodeValue();
-////                newRequest.setWebsite(website);
-////                newRequest.setResponseCode(value);
-////                newRequest.setRequestTime(Instant.now());
-////                System.out.println(website.getName());
-////
-////                requestRepository.save(newRequest);
-//
-////                if (value < 300) {
-////                    sent = false;
-////                    website.setCurrentStatus(StatusName.Operational);
-////
-////                    if (!newIncident.getIsResolved()) {
-////                        newIncident.setIsResolved(true);
-////                    }
-////
-////                    if (newIncident.getIncidentStatus() != IncidentStatus.Resolved) {
-////                        newIncident.setIncidentStatus(IncidentStatus.Resolved);
-////                    }
-////
-////                } else {
-////                    System.out.println("currently down, currently down");
-////                    website.setCurrentStatus(StatusName.Unserviceable);
-////
-////                    newIncident.setIsResolved(false);
-////                    newIncident.setIncidentTime(Instant.now());
-////                    String newMessage = website.getName() + " is currently down for some users" + '\n' + "Our engineering team is currently working hard to resolve this issue";
-////                    newIncident.setMessage(newMessage);
-////                    newIncident.setIncidentStatus(IncidentStatus.Investigating);
-////                    newIncident.setRequest(newRequest);
-////                    incidentRepository.save(newIncident);
+
+
 ////
 //////                    if(newIncident.getIsResolved() && (sent)){
 //////                        System.out.println("problem here");
