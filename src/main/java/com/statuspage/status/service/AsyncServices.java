@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -79,10 +80,16 @@ public class AsyncServices {
 
         String newMessage = downWebsite.get().getName() + " is currently down for some users" + '\n' +
                 "Our engineering team is currently working hard to resolve this issue";
+
+        Instant baseDate = Instant.parse("2020-04-16T05:29:06.196735200Z");
+        System.out.println(baseDate);
+        Long duration = Duration.between(baseDate, Instant.now()).toHours();
+
         newIncident.setMessage(newMessage);
         newIncident.setIncidentTime(Instant.now());
         newIncident.setIsResolved(false);
         newIncident.setRequest(newRequest);
+        newIncident.setGroupNumber(duration % 24);
         incidentRepository.save(newIncident);
 
     }

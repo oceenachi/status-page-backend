@@ -41,4 +41,6 @@ public class Incident {
 
     @NotNull
     private Instant incidentTime;
+
+    private Long groupNumber;
 }
