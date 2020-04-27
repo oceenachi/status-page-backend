@@ -89,7 +89,7 @@ public class AsyncServices {
         newIncident.setIncidentTime(Instant.now());
         newIncident.setIsResolved(false);
         newIncident.setRequest(newRequest);
-        newIncident.setGroupNumber(duration % 24);
+        newIncident.setGroupNumber(duration / 24);
         incidentRepository.save(newIncident);
 
     }
