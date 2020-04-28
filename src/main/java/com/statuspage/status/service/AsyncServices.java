@@ -51,25 +51,21 @@ public class AsyncServices {
         newRequest.setWebsiteUrl(url);
         requestRepository.save(newRequest);
 
-        System.out.println("i got to process response");
         if(responseCode >= 300){
             responseFailure(newRequest, url);
         }else{
             responseSuccess(url);
         }
-        System.out.println( responseCode + url);
         return responseCode;
 
     }
 
     public void responseSuccess( String url){
-        System.out.println("success");
         websiteRepository.updateWebsiteStatus(StatusName.Operational, url);
 
     }
 
     public void responseFailure(Request newRequest, String url){
-        System.out.println("failure");
         websiteRepository.updateWebsiteStatus(StatusName.Unserviceable, url);
 
         Incident newIncident = new Incident();
@@ -78,11 +74,10 @@ public class AsyncServices {
         Optional<Website> downWebsite = websiteRepository.findByUrl(url);
         assert downWebsite.isPresent();
 
-        String newMessage = downWebsite.get().getName() + " is currently down for some users" + '\n' +
-                "Our engineering team is currently working hard to resolve this issue";
+        String newMessage = downWebsite.get().getName().toLowerCase() + " is currently down for some users. " + '\n' +
+                "Our engineering team is currently investigating this issue";
 
         Instant baseDate = Instant.parse("2020-04-16T05:29:06.196735200Z");
-        System.out.println(baseDate);
         Long duration = Duration.between(baseDate, Instant.now()).toHours();
 
         newIncident.setMessage(newMessage);
@@ -97,12 +92,8 @@ public class AsyncServices {
     @Scheduled(cron = "* */5 * * * ?")
     private void makeAsyncCalls() throws ExecutionException, InterruptedException, TimeoutException {
         List<Website> websites = websiteRepository.findAll();
-//        list of urls
-//        [https://www.whogohost.ng/, https://www.nairaland.com/, https://stackoverflow.com/,
-//        https://bitly.com/, https://www.carmax.com/, https://www.betexplorer.com/soccer/australia/]
 
         List<String> urls = websites.stream().map(Website::getUrl).collect(Collectors.toList());
-        System.out.println(urls);
 
         for (String url : urls) {
 

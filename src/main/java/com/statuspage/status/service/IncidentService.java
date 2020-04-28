@@ -75,6 +75,7 @@ public class IncidentService {
                     incidenceResponseDto.setMessage(incident.getMessage());
                     incidenceResponseDto.setTime(incident.getIncidentTime());
                     incidenceResponseDto.setWebsiteName(incident.getRequest().getWebsiteUrl());
+                    incidenceResponseDto.setIncidentStatus(incident.getIncidentStatus());
                     incidentList.add(incidenceResponseDto);
                 }System.out.println(uniqueUrls);
             }

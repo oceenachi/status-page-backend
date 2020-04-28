@@ -1,6 +1,7 @@
 package com.statuspage.status.dto.response;
 
 
+import com.statuspage.status.model.IncidentStatus;
 import lombok.Data;
 
 import java.time.Instant;
@@ -13,4 +14,6 @@ public class IncidenceResponseDto {
     private String message;
 
     private Instant time;
+
+    private IncidentStatus incidentStatus;
 }
