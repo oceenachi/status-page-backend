@@ -24,7 +24,6 @@ public class IncidentController {
     @GetMapping
     public List<Incident> getIncidents(){
         return incidentService.getIncidents();
-
     }
 
     @GetMapping("/past")
@@ -32,11 +31,15 @@ public class IncidentController {
         return incidentService.pastIncidents();
     }
 
-    @GetMapping("/batched")
-    public ResponseEntity<?> getIncidentForMonth(){
-        return incidentService.getBatched();
-    }
+//    @GetMapping("/batched")
+//    public ResponseEntity<?> getIncidentForMonth(){
+//        return incidentService.getBatched();
+//    }
 
+//    @GetMapping("/history")
+//    public ResponseEntity<?> getHistory() {
+//        return incidentService.getHistory();
+//    }
 
 
 }

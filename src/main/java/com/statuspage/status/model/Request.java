@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -29,6 +30,5 @@ public class Request {
     @NotNull
     private int responseCode;
 
-    @CreationTimestamp
-    private Instant requestTime;
+    private Long requestTime;
 }

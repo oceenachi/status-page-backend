@@ -10,11 +10,7 @@ import com.statuspage.status.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +19,6 @@ import java.util.Optional;
 public class AllServices {
 
     private WebsiteRepository websiteRepository;
-//    private RestTemplate restTemplate;
     private RequestRepository requestRepository;
     private IncidentRepository incidentRepository;
     private EmailServiceImpl emailService;
@@ -34,7 +29,6 @@ public class AllServices {
                         RequestRepository requestRepository,
                         EmailServiceImpl emailService, UserRepository userRepository) {
         this.websiteRepository = websiteRepository;
-//        this.restTemplate = restTemplate;
         this.requestRepository = requestRepository;
         this.incidentRepository = incidentRepository;
         this.emailService = emailService;
@@ -63,38 +57,4 @@ public class AllServices {
     public List<Website> getAllWebsites() {
         return websiteRepository.findAll();
     }
-
-
-//    public void fireRequest() {
-
-
-////
-//////                    if(newIncident.getIsResolved() && (sent)){
-//////                        System.out.println("problem here");
-//////                        String body = "As at " + newIncident.getIncidentTime() + ", "+ website.getName() + " returned a status code of "
-//////                                + responseEntity.getStatusCode() + ". " + "\n" + "Here is a redirection link to server http://localhost:5000";
-//////                        List<String> allUserEmails = userRepository.findAllByEmail();
-//////
-//////
-//////                        String[] emails = new String[allUserEmails.size()];
-//////                        int count = 0;
-//////                        for(String email: allUserEmails){
-//////                            emails[count] = email;
-//////                            count++;
-//////                        }
-//////                        emailService.sendSimpleMessage(emails, website.getName() + " crash", body);
-//////                        sent = true;
-//////
-//////                    }
-////
-////                }
-////            }
-////
-////        } catch (Exception ex) {
-//////            throw new RequestFailException("Requests could not be executed");
-////            System.out.println(Arrays.toString(ex.getStackTrace()));
-////
-//        }
-//
-//    }
 }

@@ -13,5 +13,5 @@ import java.util.Set;
 @NoArgsConstructor
 public class IncidentResponse {
 
-    private List<HashMap<Long, List<Incident>>> payload;
+    private HashMap<Long, List<Incident>> payload;
 }

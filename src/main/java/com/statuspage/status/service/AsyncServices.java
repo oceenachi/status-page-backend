@@ -13,8 +13,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -47,7 +49,7 @@ public class AsyncServices {
     public int processResponse(String url, int responseCode){
         Request newRequest = new Request();
         newRequest.setResponseCode(responseCode);
-        newRequest.setRequestTime(Instant.now());
+        newRequest.setRequestTime(Instant.now().toEpochMilli());
         newRequest.setWebsiteUrl(url);
         requestRepository.save(newRequest);
 
@@ -62,7 +64,6 @@ public class AsyncServices {
 
     public void responseSuccess( String url){
         websiteRepository.updateWebsiteStatus(StatusName.Operational, url);
-
     }
 
     public void responseFailure(Request newRequest, String url){
@@ -77,19 +78,16 @@ public class AsyncServices {
         String newMessage = downWebsite.get().getName().toLowerCase() + " is currently down for some users. " + '\n' +
                 "Our engineering team is currently investigating this issue";
 
-        Instant baseDate = Instant.parse("2020-04-16T05:29:06.196735200Z");
-        Long duration = Duration.between(baseDate, Instant.now()).toHours();
 
         newIncident.setMessage(newMessage);
-        newIncident.setIncidentTime(Instant.now());
+        newIncident.setIncidentTime(Instant.now().toEpochMilli());
         newIncident.setIsResolved(false);
         newIncident.setRequest(newRequest);
-        newIncident.setGroupNumber(duration / 24);
         incidentRepository.save(newIncident);
 
     }
 
-    @Scheduled(cron = "* */5 * * * ?")
+    @Scheduled(cron = "* */1 * * * ?")
     private void makeAsyncCalls() throws ExecutionException, InterruptedException, TimeoutException {
         List<Website> websites = websiteRepository.findAll();
 
@@ -104,13 +102,13 @@ public class AsyncServices {
                         throw new IllegalArgumentException(ex.getMessage());
                     }
                 }).thenApplyAsync(res-> processResponse(url, res))
-
                         .exceptionally(exception -> {
                             log.info(String.valueOf(exception));
                             return HttpStatus.SERVICE_UNAVAILABLE.value();
                         }).thenApplyAsync(res-> processResponse(url, res));
             log.info("url {} {}", url, response.get(10000, TimeUnit.SECONDS));
         }
+
 
     }
 

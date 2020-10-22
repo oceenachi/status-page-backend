@@ -30,7 +30,6 @@ public class UserService {
     public CreateResponse register(User user){
         try{
             Optional<User> newUser= userRepository.findByEmail(user.getEmail());
-            System.out.println(newUser.isPresent());
 
             if(!newUser.isPresent()){
                 user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));

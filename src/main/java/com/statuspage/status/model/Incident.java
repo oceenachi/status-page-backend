@@ -8,6 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,6 @@ public class Incident {
     private Request request;
 
     @NotNull
-    private Instant incidentTime;
+    private Long incidentTime;
 
-    private Long groupNumber;
 }

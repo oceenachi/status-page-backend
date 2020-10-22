@@ -5,18 +5,24 @@ import com.statuspage.status.dto.response.IncidenceResponseDto;
 import com.statuspage.status.dto.response.IncidentResponse;
 import com.statuspage.status.model.Incident;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class IncidentService {
 
-    private IncidentRepository incidentRepository;
+    IncidentRepository incidentRepository;
 
     @Autowired
     public IncidentService(IncidentRepository incidentRepository){
@@ -34,38 +40,49 @@ public class IncidentService {
 //     * @param timeUnit the unit in which you want the diff
 //     * @return the diff value, in the provided unit
 //     */
-//    @PostConstruct
+    @PostConstruct
     private Map<Long, List<Incident>> getRecentPastIncidents(){
-        Long lastGroupNumber = Long.MIN_VALUE;
-        Page<Incident> lastGroupIncident = incidentRepository.findLastGroupNumber(PageRequest.of(0,1));
-        for(Incident lastIncident: lastGroupIncident){
-            lastGroupNumber = lastIncident.getGroupNumber();
-        }
 
-        List<Incident> recentIncidents = incidentRepository
-                .getRecentTwelve(lastGroupNumber);
-        System.out.println("recent incidents: " + recentIncidents);
+//        Instant now = Instant.now();
+//        Instant twelfthDay = now.minus(12, ChronoUnit.DAYS);
+//
+//        List<Incident> recentIncidents = incidentRepository
+//                .getRecentTwelve(now, twelfthDay);
+//        System.out.println("recent incidents: " + recentIncidents);
+//        Date date = new Date();
+//        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-M-dd hh:mm:ss");
+//        String strDate = formatter.format(date);
 
+//        System.out.println("strDate ts " + Timestamp.valueOf(strDate));
+//        System.out.println("newDt " + new Date());
+//        System.out.println("millis " +(new Date(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5)).toString()));
+//        System.out.println("ts " + Timestamp.valueOf((new Date(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5)).toString())));
+        Long twelveDaysAgo = Instant.now().minus(12, ChronoUnit.DAYS).toEpochMilli();
+        System.out.println(Instant.now().toEpochMilli());
+        System.out.println(twelveDaysAgo);
+        List<Incident> recentIncidents = incidentRepository.getRecentIncidents(twelveDaysAgo, Instant.now().toEpochMilli());
+        System.out.println("recentIncidents" + recentIncidents);
         Hashtable<Long, List<Incident>> groupNumberAndIncidence = new Hashtable<>();
-        for(Incident oneIncident: recentIncidents){
-            if(groupNumberAndIncidence.containsKey(oneIncident.getGroupNumber())){
-                groupNumberAndIncidence.get(oneIncident.getGroupNumber()).add(oneIncident);
-            }else{
-                groupNumberAndIncidence.put(oneIncident.getGroupNumber(), new ArrayList<Incident>(Arrays.asList(oneIncident)));
-            }
-        }
-        System.out.println(groupNumberAndIncidence);
 
+
+
+//        for(Incident oneIncident: recentIncidents){
+//
+//            if(groupNumberAndIncidence.containsKey(oneIncident.getGroupNumber())){
+//                groupNumberAndIncidence.get(oneIncident.getGroupNumber()).add(oneIncident);
+//            }else{
+//                groupNumberAndIncidence.put(oneIncident.getGroupNumber(), new ArrayList<Incident>(Arrays.asList(oneIncident)));
+//            }
+//        }
 
         return groupNumberAndIncidence;
     }
 
 
-    private List<HashMap<Long, List<IncidenceResponseDto>>> formatIncidenceResponse(Map<Long, List<Incident>> incidentResults){
+    private HashMap<Long, List<IncidenceResponseDto>> formatIncidenceResponse(Map<Long, List<Incident>> incidentResults){
         IncidentResponse incidentResponse = new IncidentResponse();
-        List<HashMap<Long, List<IncidenceResponseDto>>> responseList = new ArrayList<>(15);
+        HashMap<Long, List<IncidenceResponseDto>> responseMap = new HashMap<>(15);
         for(Map.Entry<Long, List<Incident>> entrySet: incidentResults.entrySet()){
-            HashMap<Long, List<IncidenceResponseDto>> newResponse = new HashMap<>();
             List<IncidenceResponseDto> incidentList = new ArrayList<IncidenceResponseDto>(10);
             Set<String> uniqueUrls = new HashSet<>();
             for(Incident incident: entrySet.getValue()){
@@ -73,28 +90,28 @@ public class IncidentService {
                     uniqueUrls.add(incident.getRequest().getWebsiteUrl());
                     IncidenceResponseDto incidenceResponseDto = new IncidenceResponseDto();
                     incidenceResponseDto.setMessage(incident.getMessage());
-                    incidenceResponseDto.setTime(incident.getIncidentTime());
+                    incidenceResponseDto.setIncidentTime(incident.getIncidentTime());
                     incidenceResponseDto.setWebsiteName(incident.getRequest().getWebsiteUrl());
                     incidenceResponseDto.setIncidentStatus(incident.getIncidentStatus());
                     incidentList.add(incidenceResponseDto);
                 }System.out.println(uniqueUrls);
             }
-            newResponse.put(entrySet.getKey(), incidentList);
-            responseList.add(newResponse);
+          responseMap.put(entrySet.getKey(), incidentList);
 
-        }
-        return responseList;
+            }
+        return responseMap;
+
     }
 
-    public ResponseEntity<List<HashMap<Long, List<IncidenceResponseDto>>>> pastIncidents(){
+    public ResponseEntity<HashMap<Long, List<IncidenceResponseDto>>> pastIncidents(){
 
         Map<Long, List<Incident>> recentPastIncident = this.getRecentPastIncidents();
-        List<HashMap<Long, List<IncidenceResponseDto>>> uniqueIncidences = formatIncidenceResponse(recentPastIncident);
-        return new ResponseEntity<List<HashMap<Long, List<IncidenceResponseDto>>>>(uniqueIncidences, HttpStatus.ACCEPTED);
+        HashMap<Long, List<IncidenceResponseDto>> uniqueIncidences = formatIncidenceResponse(recentPastIncident);
+        return new ResponseEntity<HashMap<Long, List<IncidenceResponseDto>>>(uniqueIncidences, HttpStatus.ACCEPTED);
     }
 
-    public ResponseEntity<?> getBatched(){
-//        List<Incident> batchdIncident = incidentRepository.
-        return null;
-    }
+
+
+
+
 }
