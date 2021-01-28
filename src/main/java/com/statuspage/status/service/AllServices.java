@@ -14,15 +14,18 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-
+/**
+ *
+ */
 @Service
 public class AllServices {
 
-    private WebsiteRepository websiteRepository;
-    private RequestRepository requestRepository;
-    private IncidentRepository incidentRepository;
-    private EmailServiceImpl emailService;
-    private UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(AllServices.class);
+    private final WebsiteRepository websiteRepository;
+    private final RequestRepository requestRepository;
+    private final IncidentRepository incidentRepository;
+    private final EmailServiceImpl emailService;
+    private final UserRepository userRepository;
 
     @Autowired
     private AllServices(WebsiteRepository websiteRepository, IncidentRepository incidentRepository,
@@ -35,12 +38,8 @@ public class AllServices {
         this.userRepository = userRepository;
     }
 
-    private final Logger logger = LoggerFactory.getLogger(AllServices.class);
-
-
     public CreateResponse createWebsite(Website newWebsite) {
         try {
-            System.out.println(newWebsite);
             Optional<Website> website = websiteRepository.findByUrl(newWebsite.getUrl());
             if (!website.isPresent()) {
                 websiteRepository.save(newWebsite);
@@ -52,7 +51,6 @@ public class AllServices {
             throw new WebsiteAlreadyExistsException("the website ' " + newWebsite.getName() + "' already exists");
         }
     }
-
 
     public List<Website> getAllWebsites() {
         return websiteRepository.findAll();
