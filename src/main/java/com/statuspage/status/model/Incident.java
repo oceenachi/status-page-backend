@@ -1,16 +1,13 @@
 package com.statuspage.status.model;
 
 
-import com.sun.istack.NotNull;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -40,5 +37,6 @@ public class Incident {
     private Request request;
 
     @NotNull
-    private Instant incidentTime;
+    private Long incidentTime;
+
 }

@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -49,6 +50,6 @@ public class Website {
     private StatusName currentStatus;
 
     @CreationTimestamp
-    private Instant creationTime;
+    private Timestamp timestamp;
 
 }

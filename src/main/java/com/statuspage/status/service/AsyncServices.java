@@ -7,12 +7,12 @@ import com.statuspage.status.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +31,8 @@ public class AsyncServices {
 
     @Autowired
     public AsyncServices(WebsiteRepository websiteRepository, RestTemplate restTemplate,
-                         RequestRepository requestRepository, IncidentRepository incidentRepository) {
+                         RequestRepository requestRepository, IncidentRepository incidentRepository,
+                         MessageQueueProducer messageQueueProducer) {
         this.websiteRepository = websiteRepository;
         this.restTemplate = restTemplate;
         this.requestRepository = requestRepository;
@@ -39,66 +40,61 @@ public class AsyncServices {
     }
 
 
-    public ResponseEntity<?> getResponses(String url) {
-        return restTemplate.getForEntity(url, String.class);
+    public ResponseEntity<?> getResponses(String url) throws Exception {
+            ResponseEntity<String> result = restTemplate.getForEntity(url, String.class);
+
+            return result;
     }
 
     public int processResponse(String url, int responseCode){
         Request newRequest = new Request();
         newRequest.setResponseCode(responseCode);
-        newRequest.setRequestTime(Instant.now());
+        newRequest.setRequestTime(Instant.now().toEpochMilli());
         newRequest.setWebsiteUrl(url);
         requestRepository.save(newRequest);
 
-        System.out.println("i got to process response");
         if(responseCode >= 300){
             responseFailure(newRequest, url);
         }else{
             responseSuccess(url);
         }
-        System.out.println( responseCode + url);
         return responseCode;
 
     }
 
     public void responseSuccess( String url){
-        System.out.println("success");
         websiteRepository.updateWebsiteStatus(StatusName.Operational, url);
-
     }
 
     public void responseFailure(Request newRequest, String url){
-        System.out.println("failure");
         websiteRepository.updateWebsiteStatus(StatusName.Unserviceable, url);
 
         Incident newIncident = new Incident();
         newIncident.setIncidentStatus(IncidentStatus.Investigating);
 
         Optional<Website> downWebsite = websiteRepository.findByUrl(url);
-        assert downWebsite.isPresent();
+        downWebsite.ifPresent(website -> {
 
-        String newMessage = downWebsite.get().getName() + " is currently down for some users" + '\n' +
-                "Our engineering team is currently working hard to resolve this issue";
+        });
+
+        String newMessage = downWebsite.get().getName().toLowerCase() + " is currently down for some users. " + '\n' +
+                "Our engineering team is currently investigating this issue";
+
         newIncident.setMessage(newMessage);
-        newIncident.setIncidentTime(Instant.now());
+        newIncident.setIncidentTime(Instant.now().toEpochMilli());
         newIncident.setIsResolved(false);
         newIncident.setRequest(newRequest);
-        incidentRepository.save(newIncident);
+        incidentRepository.save(newIncident);       
 
     }
 
-    @Scheduled(cron = "* */5 * * * ?")
+    @Scheduled(cron = "* */1 * * * ?")
     private void makeAsyncCalls() throws ExecutionException, InterruptedException, TimeoutException {
         List<Website> websites = websiteRepository.findAll();
-//        list of urls
-//        [https://www.whogohost.ng/, https://www.nairaland.com/, https://stackoverflow.com/,
-//        https://bitly.com/, https://www.carmax.com/, https://www.betexplorer.com/soccer/australia/]
 
         List<String> urls = websites.stream().map(Website::getUrl).collect(Collectors.toList());
-        System.out.println(urls);
 
         for (String url : urls) {
-
                 CompletableFuture<Integer> response = CompletableFuture.supplyAsync(() -> {
                     try{
                         return this.getResponses(url).getStatusCodeValue();
@@ -106,13 +102,13 @@ public class AsyncServices {
                         throw new IllegalArgumentException(ex.getMessage());
                     }
                 }).thenApplyAsync(res-> processResponse(url, res))
-
                         .exceptionally(exception -> {
                             log.info(String.valueOf(exception));
                             return HttpStatus.SERVICE_UNAVAILABLE.value();
                         }).thenApplyAsync(res-> processResponse(url, res));
             log.info("url {} {}", url, response.get(10000, TimeUnit.SECONDS));
         }
+
 
     }
 
