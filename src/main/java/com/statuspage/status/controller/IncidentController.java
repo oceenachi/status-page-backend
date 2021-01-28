@@ -1,9 +1,10 @@
 package com.statuspage.status.controller;
 
-
+import com.statuspage.status.Repository.IncidentMetrics;
 import com.statuspage.status.model.Incident;
 import com.statuspage.status.service.IncidentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,19 +28,9 @@ public class IncidentController {
     }
 
     @GetMapping("/past")
-    public ResponseEntity<?> getPastIncident(){
-        return incidentService.pastIncidents();
+    public ResponseEntity<List<IncidentMetrics>> getPastIncident(){
+        List<IncidentMetrics> pastIncidents = incidentService.getPastIncidents();
+        return new ResponseEntity<>(pastIncidents, HttpStatus.OK);
     }
-
-//    @GetMapping("/batched")
-//    public ResponseEntity<?> getIncidentForMonth(){
-//        return incidentService.getBatched();
-//    }
-
-//    @GetMapping("/history")
-//    public ResponseEntity<?> getHistory() {
-//        return incidentService.getHistory();
-//    }
-
 
 }
