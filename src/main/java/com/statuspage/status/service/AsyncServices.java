@@ -7,16 +7,13 @@ import com.statuspage.status.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.sql.Timestamp;
-import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -34,7 +31,8 @@ public class AsyncServices {
 
     @Autowired
     public AsyncServices(WebsiteRepository websiteRepository, RestTemplate restTemplate,
-                         RequestRepository requestRepository, IncidentRepository incidentRepository) {
+                         RequestRepository requestRepository, IncidentRepository incidentRepository,
+                         MessageQueueProducer messageQueueProducer) {
         this.websiteRepository = websiteRepository;
         this.restTemplate = restTemplate;
         this.requestRepository = requestRepository;
@@ -42,8 +40,10 @@ public class AsyncServices {
     }
 
 
-    public ResponseEntity<?> getResponses(String url) {
-        return restTemplate.getForEntity(url, String.class);
+    public ResponseEntity<?> getResponses(String url) throws Exception {
+            ResponseEntity<String> result = restTemplate.getForEntity(url, String.class);
+
+            return result;
     }
 
     public int processResponse(String url, int responseCode){
@@ -73,17 +73,18 @@ public class AsyncServices {
         newIncident.setIncidentStatus(IncidentStatus.Investigating);
 
         Optional<Website> downWebsite = websiteRepository.findByUrl(url);
-        assert downWebsite.isPresent();
+        downWebsite.ifPresent(website -> {
+
+        });
 
         String newMessage = downWebsite.get().getName().toLowerCase() + " is currently down for some users. " + '\n' +
                 "Our engineering team is currently investigating this issue";
-
 
         newIncident.setMessage(newMessage);
         newIncident.setIncidentTime(Instant.now().toEpochMilli());
         newIncident.setIsResolved(false);
         newIncident.setRequest(newRequest);
-        incidentRepository.save(newIncident);
+        incidentRepository.save(newIncident);       
 
     }
 
@@ -94,7 +95,6 @@ public class AsyncServices {
         List<String> urls = websites.stream().map(Website::getUrl).collect(Collectors.toList());
 
         for (String url : urls) {
-
                 CompletableFuture<Integer> response = CompletableFuture.supplyAsync(() -> {
                     try{
                         return this.getResponses(url).getStatusCodeValue();
