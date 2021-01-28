@@ -11,14 +11,13 @@ import java.util.UUID;
 
 
 @Repository
-public interface IncidentRepository extends JpaRepository<Incident, UUID>, JpaSpecificationExecutor<Incident> {
+public interface IncidentRepository extends JpaRepository<Incident, UUID>{
 
-//    @Query("select incident from Incident incident order by incident.groupNumber desc")
-//    Page<Incident> findLastGroupNumber(PageRequest pageable);
-//
-//    @Query("select incident from Incident incident where incident.incidentTime >= ?2 AND incident.incidentTime  <= ?1 order by incident.groupNumber desc")
-//    List<Incident> getRecentTwelve(Instant now, Instant twelfthDay);
 
-    @Query(value = "select * from incident where incident_time between :twelveDaysAgo and :latest", nativeQuery = true)
-    List<Incident> getRecentIncidents(@Param("twelveDaysAgo") Long twelveDaysAgo, @Param("latest") Long latest);
+    @Query(value = "SELECT message, incident_status, is_resolved, name, incident_time, " +
+            "FLOOR(incident_time/86400000) as incident_group from incident inner join request on " +
+            "incident.request_id = request.request_id inner join website on website.url = request.website_url " +
+            "where incident_time BETWEEN :twelveDaysAgo AND :latest GROUP BY name, incident_group order by incident_group",
+            nativeQuery = true)
+    List<IncidentMetrics> getRecentIncidents(@Param("twelveDaysAgo") Long twelveDaysAgo, @Param("latest") Long latest);
 }
